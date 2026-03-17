@@ -13,21 +13,21 @@ import { useAgentStore } from "../../../../stores/agentStore";
  * Returns the directory path including the trailing separator.
  */
 const extractWorkspacePath = (filePath: string): string => {
+  if (!filePath) {
+    return "";
+  }
+
   const lastSlashIndex = filePath.lastIndexOf("/");
   const lastBackslashIndex = filePath.lastIndexOf("\\");
   const separatorIndex = Math.max(lastSlashIndex, lastBackslashIndex);
 
-  if (separatorIndex <= 0) {
-    // Root directory case: /file.txt -> /, C:\file.txt -> C:\
-    if (lastBackslashIndex === 2 && filePath[1] === ":") {
-      // Windows root: C:\file.txt -> C:\
-      return filePath.substring(0, 3);
-    }
-    // Unix root: /file.txt -> /
-    return filePath.substring(0, 1);
+  if (separatorIndex < 0) {
+    return ""; // No separator found
   }
 
-  return filePath.substring(0, separatorIndex);
+
+  // This correctly returns the path including the trailing separator for all cases.
+  return filePath.substring(0, separatorIndex + 1);
 };
 
 export const useAgentsData = () => {
