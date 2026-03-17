@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { message } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
-import api from "../../../../api";
 import type { MarkdownFile, DailyMemoryFile } from "../../../../api/types";
 import { workspaceApi } from "../../../../api/modules/workspace";
 import { agentsApi } from "../../../../api/modules/agents";
@@ -147,8 +146,16 @@ export const useAgentsData = () => {
 
   const fetchDailyMemories = async () => {
     try {
-      const memoryList = await api.listDailyMemory();
-      setDailyMemories(memoryList);
+      const memoryList = await agentsApi.listAgentMemory(selectedAgent);
+      const formattedList = memoryList.map((file) => {
+        const date = file.filename.replace(".md", "");
+        return {
+          ...file,
+          date,
+          updated_at: new Date(file.modified_time).getTime(),
+        } as DailyMemoryFile;
+      });
+      setDailyMemories(formattedList);
     } catch (error) {
       console.error("Failed to fetch daily memories", error);
       message.error("Failed to load memory list");
@@ -192,7 +199,7 @@ export const useAgentsData = () => {
     });
     setLoading(true);
     try {
-      const data = await api.loadDailyMemory(daily.date);
+      const data = await agentsApi.readAgentMemory(selectedAgent, daily.date);
       setFileContent(data.content);
       setOriginalContent(data.content);
     } catch (error) {
@@ -209,9 +216,9 @@ export const useAgentsData = () => {
     try {
       if (selectedFile.filename.match(/^\d{4}-\d{2}-\d{2}\.md$/)) {
         const date = selectedFile.filename.replace(".md", "");
-        await api.saveDailyMemory(date, fileContent);
+        await agentsApi.saveAgentMemory(selectedAgent, date, fileContent);
       } else {
-        await api.saveFile(selectedFile.filename, fileContent);
+        await agentsApi.writeAgentFile(selectedAgent, selectedFile.filename, fileContent);
       }
       setOriginalContent(fileContent);
       message.success("Saved successfully");
