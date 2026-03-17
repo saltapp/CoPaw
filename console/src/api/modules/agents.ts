@@ -57,4 +57,16 @@ export const agentsApi = {
   // Agent memory files
   listAgentMemory: (agentId: string) =>
     request<MdFileInfo[]>(`/agents/${agentId}/memory`),
+
+  readAgentMemory: (agentId: string, date: string) =>
+    request<MdFileContent>(`/agents/${agentId}/memory/${encodeURIComponent(date)}.md`),
+
+  saveAgentMemory: (agentId: string, date: string, content: string) =>
+    request<{ written: boolean; filename: string }>(
+      `/agents/${agentId}/memory/${encodeURIComponent(date)}.md`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      },
+    ),
 };
