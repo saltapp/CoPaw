@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { message } from "@agentscope-ai/design";
+import { useAppMessage } from "../../../../hooks/useAppMessage";
 import { useTranslation } from "react-i18next";
 import type { MarkdownFile, DailyMemoryFile } from "../../../../api/types";
 import { workspaceApi } from "../../../../api/modules/workspace";
@@ -24,6 +24,7 @@ export const useAgentsData = () => {
   const [loading, setLoading] = useState(false);
   const [workspacePath, setWorkspacePath] = useState<string | null>(null);
   const [enabledFiles, setEnabledFiles] = useState<string[]>([]);
+  const { message } = useAppMessage();
 
   useEffect(() => {
     const initializeData = async () => {
